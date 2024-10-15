@@ -8,10 +8,10 @@ from . import muscle
 
 
 class LinearMuscleState(muscle.MuscleState):
-    def step(self, params: muscle.MuscleParams, act: float, joint_angle: float):
-        return muscle_step_linear(params, self, act, joint_angle)
-
-
+    def step(state, params: muscle.MuscleParams, act: float, joint_angle: float):
+        return muscle_step_linear(params, state, act, joint_angle)[0]
+    def output(state, params: muscle.MuscleParams, act: float, joint_angle: float):
+        return muscle_step_linear(params, state, act, joint_angle)[1]
 
 
 

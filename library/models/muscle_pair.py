@@ -36,9 +36,9 @@ class MusclepairState(typing.NamedTuple):
                    flexor_state = muscle.MuscleState.make()
         )
     def step(self, params: MusclepairParams, act_e: float, act_f: float, joint_angle: float):
-        return musclepair_step(params, self, act_e, act_f, joint_angle)
-
-
+        return musclepair_step(params, self, act_e, act_f, joint_angle)[0]
+    def output(self, params: MusclepairParams, act_e: float, act_f: float, joint_angle: float):
+        return musclepair_step(params, self, act_e, act_f, joint_angle)[1]
 
 
 

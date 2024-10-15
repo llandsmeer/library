@@ -34,10 +34,13 @@ class MuscleActivationState(typing.NamedTuple):
     def make(cls):
         return cls(
             muscle_act = 0.,
-            stimtime = 0. 
+            stimtime = 0.
         )
-    def step(self, params: MuscleActivationParams, ctrl: float):
-        return muscle_activation_step2(params, self, ctrl)
+    def step(state, params: MuscleActivationParams, ctrl: float):
+        return muscle_activation_step2(params, state, ctrl)[0]
+    def output(state, _: MuscleActivationParams):
+        ctrl = util.superspike(state.stimtime)
+        return 0.001 * ctrl.reshape(1,)
 
 
 
@@ -47,7 +50,7 @@ class MuscleActivationState(typing.NamedTuple):
 
 
 
-def muscle_activation_step2(params: MuscleActivationParams, state: MuscleActivationState, ctrl: float): 
+def muscle_activation_step2(params: MuscleActivationParams, state: MuscleActivationState, ctrl: float):
     #implementation of squared stimulation:
     stimtime = state.stimtime + (ctrl-1)*(1) + (ctrl)*params.dt_stim
     stimtime_next = util.passthrough_clip(stimtime, -1, params.dt_stim)

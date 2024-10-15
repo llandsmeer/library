@@ -35,10 +35,10 @@ class LIState(typing.NamedTuple):
         return cls(
             I = jnp.zeros(n),
             U = jnp.zeros(n)+1e-10)
-    def step(self, params: LIParams, syn_in: jax.Array):
-        return lif_step_LIF(params, self, syn_in)
-
-
+    def step(state, params: LIParams, syn_in: jax.Array):
+        return lif_step_LIF(params, state, syn_in)[0]
+    def output(state, _: LIParams):
+        return state.U
 
 
 
