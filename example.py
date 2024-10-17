@@ -1,4 +1,5 @@
 import jax
+import jax.numpy as jnp
 import library
 
 # model = library.engine.Composite(
@@ -14,31 +15,35 @@ import library
 #         )
 
 model = library.engine.Composite(
-        input = ['x'],
-        driver = library.engine.SensorLIF(1, input='1.'),
-        act = library.engine.MuscleActivation(input='output.driver[0]'),
-        joint = library.engine.IsolatedJoint(
-            input       = 'output.muscle'
+        input = ['Ipos', 'Ineg'],
+        network = library.engine.SensorLIF(
+            n=2,
+            input='array([input.Ipos, input.Ineg])'
             ),
-        muscle = library.engine.Muscle(
-            input       = '(output.act, output.joint)',
-            context     = '(state.act.muscle_act, state.joint.angle)',
+        act_e = library.engine.MuscleActivation(
+            input='output.network[0]'
+            ),
+        act_f = library.engine.MuscleActivation(
+            input='output.network[1]'
+            ),
+        joint = library.engine.IsolatedJoint(
+            input       = 'output.muscles',
+            inertia     = 1e-4
+            ),
+        muscles = library.engine.MusclePair(
+            act_e = 'act_e',
+            act_f = 'act_f',
+            joint = 'joint'
             )
         )
 
 state = model.initial
 params = model.params
 
-model.output(state, params, model.Input(0.))
-step = jax.jit(model.step)
-for _ in range(100):
-    step(state, params, model.Input(1.))
+relu = jax.nn.relu
+t = jnp.arange(0, 400, 0.025)
+inp = model.Input(relu(0.1*jnp.cos(0.1*t)), relu(-0.1*jnp.cos(t)))
+_, trace = jax.lax.scan(model.fscan, model.initial, inp)
 
-
-
-
-
-
-
-
-
+plt.plot(trace.joint)
+plt.show()

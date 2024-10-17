@@ -5,6 +5,7 @@ from . import (
         muscle,
         muscle_activation,
         muscle_linear,
+        muscle_pair,
         isolated_joint,
         util
         )
@@ -19,6 +20,8 @@ SensorLIFParams = sensorlif.SensorLIFParams
 SensorLIFState = sensorlif.SensorLIFState
 MuscleState = muscle.MuscleState
 MuscleParams = muscle.MuscleParams
+MusclePairState = muscle_pair.MusclePairState
+MusclePairParams = muscle_pair.MusclePairParams
 LinearMuscleState = muscle_linear.LinearMuscleState
 LinearMuscleParams = muscle_linear.LinearMuscleParams
 IsolatedJointParams = isolated_joint.IsolatedJointParams

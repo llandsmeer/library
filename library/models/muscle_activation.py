@@ -56,5 +56,5 @@ def muscle_activation_step2(params: MuscleActivationParams, state: MuscleActivat
     stimtime_next = util.passthrough_clip(stimtime, -1, params.dt_stim)
     ctrl = util.superspike(stimtime_next)
     act_next = 0.0001*ctrl
-    act_next = act_next.reshape(1,)
+    #act_next = act_next.reshape(1,)
     return MuscleActivationState(act_next, stimtime_next), act_next
