@@ -1,10 +1,10 @@
 from . import (
         li,
-        muscle,
         lif,
+        sensorlif,
+        muscle,
         muscle_activation,
         muscle_linear,
-        sensorlif,
         util
         )
 
@@ -16,6 +16,8 @@ MuscleActivationState = muscle_activation.MuscleActivationState
 MuscleActivationParams = muscle_activation.MuscleActivationParams
 SensorLIFParams = sensorlif.SensorLIFParams
 SensorLIFState = sensorlif.SensorLIFState
-muscle_linear.LinearMuscleState = muscle_linear.LinearMuscleState
-LinearMuscleParams = muscle.MuscleParams
+MuscleState = muscle.MuscleState
+MuscleParams = muscle.MuscleParams
+LinearMuscleState = muscle_linear.LinearMuscleState
+LinearMuscleParams = muscle_linear.LinearMuscleParams
 util = util

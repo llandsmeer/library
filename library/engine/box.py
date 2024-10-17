@@ -1,16 +1,15 @@
-import jax
 import collections
 import typing
 import abc
-#from . import models
-import models
 
+# For ABCBox & Connector
 StateT = typing.TypeVar('StateT')
 ParamT = typing.TypeVar('ParamT')
 OutputT = typing.TypeVar('OutputT')
 ContextT = typing.TypeVar('ContextT')
 InputT = typing.TypeVar('InputT')
 
+# For Connector
 OuterInputT = typing.TypeVar('OuterInputT')
 OuterOutputT = typing.TypeVar('OuterOutputT')
 
@@ -29,7 +28,7 @@ class Box(typing.NamedTuple):
     step: typing.Callable[[object, object, object], object]
 
 class Connector(typing.Generic[OuterInputT, OuterOutputT, InputT, ContextT]):
-    'Goes with the Model class'
+    'Goes with the Composite class'
     inner: ABCBox
     input: typing.Callable[[OuterInputT, OuterInputT], InputT]
     context: typing.Callable[[OuterInputT], ContextT]
@@ -54,12 +53,12 @@ class Connector(typing.Generic[OuterInputT, OuterOutputT, InputT, ContextT]):
         else:
             self.inner = inner
 
-class Model(ABCBox):
+class Composite(ABCBox):
     'Composite Box'
     def __init__(
             self,
-            name: str,
             input: typing.List[str],
+            name: str = 'Model',
             **kwargs: Connector
             ):
         members = kwargs.keys()
@@ -102,34 +101,3 @@ class Model(ABCBox):
         self.params = params
         self.output = output
         self.step = step
-
-model = Model('F',
-        input = ['x'],
-        a = Connector(
-            initial=models.LIFState.make(10),
-            params = models.LIParams.make(),
-            input = lambda input, output: output.b + input.x # type: ignore
-            ),
-        b = Connector(
-            initial=models.LIFState.make(10),
-            params =models.LIParams.make(),
-            input  = 'output.a' # type: ignore
-            )
-        )
-
-state = model.initial
-params = model.params
-
-model.output(state, params, model.Input(0.))
-step = jax.jit(model.step)
-for _ in range(100):
-    step(state, params, model.Input(1.))
-
-
-
-
-
-
-
-
-
