@@ -1,15 +1,28 @@
 import jax
 import library
 
+# model = library.engine.Composite(
+#         input = ['x'],
+#         a = library.engine.LI(
+#             n=10,
+#             input = lambda input, output: output.b + input.x # type: ignore
+#             ),
+#         b = library.engine.LIF(
+#             n=10,
+#             input  = 'output.a' # type: ignore
+#             )
+#         )
+
 model = library.engine.Composite(
         input = ['x'],
-        a = library.engine.LI(
-            n=10,
-            input = lambda input, output: output.b + input.x # type: ignore
+        driver = library.engine.SensorLIF(1, input='1.'),
+        act = library.engine.MuscleActivation(input='output.driver[0]'),
+        joint = library.engine.IsolatedJoint(
+            input       = 'output.muscle'
             ),
-        b = library.engine.LIF(
-            n=10,
-            input  = 'output.a' # type: ignore
+        muscle = library.engine.Muscle(
+            input       = '(output.act, output.joint)',
+            context     = '(state.act.muscle_act, state.joint.angle)',
             )
         )
 
