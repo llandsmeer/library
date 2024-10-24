@@ -1,0 +1,44 @@
+<mujoco model="tendon_pole">
+  <compiler inertiafromgeom="true"/>
+  <default>
+    <joint armature="0" damping="0" limited="true"/>
+    <geom contype="0" rgba="0.4 0.33 0.26 1.0"/>
+    <tendon/>
+    <motor ctrlrange="-3 3"/>
+  </default>
+  <!-- <option gravity="0 0 -0.981" timestep="0.00125" /> -->
+  <option gravity="0 0 -0.981" timestep="0.00125" />
+
+  <!-- <custom>
+    brax custom params
+    <numeric data="1000" name="constraint_limit_stiffness"/>
+    <numeric data="4000" name="constraint_stiffness"/>
+    <numeric data="10" name="constraint_ang_damping"/>
+    <numeric data="20" name="constraint_vel_damping"/>
+    <numeric data="0.5" name="joint_scale_pos"/>
+    <numeric data="0.2" name="joint_scale_ang"/>
+    <numeric data="0.0" name="ang_damping"/>
+    <numeric data="1" name="spring_mass_scale"/>
+    <numeric data="1" name="spring_inertia_scale"/>
+    <numeric data="15" name="solver_maxls"/>
+  </custom> -->
+  <!-- <size nstack="3000"/> -->
+
+ <!-- AANGEPAST NAAR REAL VALUES MOUSE (erg klein)  -->
+  <worldbody>
+    <light diffuse=".5 .5 .5" pos="0 0 3" dir="0 0 -1"/>
+    <geom name="rail" pos="0 0 0" quat="0.707 0 0.707 0" size="0.001 0.02" type="capsule" rgba="1 1 1 1"/>
+    <body name="pole" pos="0 0 0">
+      <!-- <joint axis="0 1 0" name="hinge" pos="0 0 0" range="-90 90" type="hinge" limited="true" damping="0.001" armature="0.0001" /> -->
+      <joint axis="0 1 0" name="hinge" pos="0 0 0" range="-90 90" type="hinge" limited="true" damping="0.00005" armature="0.000005" />
+
+      <geom fromto="0 0 0 0.0 0 0.01" name="cpole" size="0.0039 0.003" type="capsule" mass="0.01"/> 
+    </body>
+  </worldbody>
+  
+<!-- damping="0.000001" armature="0.00000005" -->
+  <actuator>
+    <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="hinge" name="hinge"/>
+  </actuator>
+</mujoco>
+

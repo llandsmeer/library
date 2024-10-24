@@ -105,3 +105,15 @@ class IsolatedJoint(Connector):
                 context=None,
                 initial=initial,
                 params=params)
+
+from .composite import Connector
+
+class MJXConnector(Connector):
+    def __init__(self, fn='pole.xml', *, input):
+        params = models.MJXParams.make(fn)
+        initial = params.init_state()
+        super().__init__(
+                input=input,
+                context=None,
+                initial=initial,
+                params=params)

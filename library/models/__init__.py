@@ -7,6 +7,7 @@ from . import (
         muscle_linear,
         muscle_pair,
         isolated_joint,
+        mjx,
         util
         )
 
@@ -26,5 +27,7 @@ LinearMuscleState = muscle_linear.LinearMuscleState
 LinearMuscleParams = muscle_linear.LinearMuscleParams
 IsolatedJointParams = isolated_joint.IsolatedJointParams
 IsolatedJointState = isolated_joint.IsolatedJointState
+MJXParams = mjx.MJXParams
+MJXState = mjx.MJXState
 
 util = util # 'Variable not referenced' message...
