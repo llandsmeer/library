@@ -17,12 +17,27 @@ class MJXParams(typing.NamedTuple):
         q = self.sys.init_q # + random
         qd = jnp.zeros((self.sys.qd_size(),))
         initial = pipeline.init(self.sys, q, qd)
-        return initial
+        return MJXState(initial)
+
+class Angle(typing.NamedTuple):
+    angle: float | jax.Array
+
+class MJXOutput(typing.NamedTuple):
+    obs_q: jax.Array
+    obs_qd: jax.Array
+    @property
+    def obs(self):
+        return jnp.concatenate([self.obs_q, self.obs_qd])
+    def joint(self, idx: int):
+        return jnp.pi/2 - self.obs_q[..., idx]
 
 class MJXState(typing.NamedTuple):
     state: pipeline.State
     def step(self, params: MJXParams, action: jax.Array):
-        return pipeline.step(params.sys, self.state, action)
-    def output(self, _: None):
-        return jnp.concatenate([self.state.q, self.state.qd])
+        return MJXState(pipeline.step(params.sys, self.state, action))
+    def output(self, params: MJXParams):
+        del params
+        return MJXOutput(self.state.q, self.state.qd)
+    def joint(self, idx: int):
+        return Angle(jnp.pi/2 - self.state.q[..., idx])
 

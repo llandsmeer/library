@@ -17,7 +17,6 @@ class ABCBox(abc.ABC, typing.Generic[StateT, ParamT, OutputT, ContextT, InputT])
     step: typing.Callable[[StateT, ParamT, InputT], StateT]
     def fscan(self, state, inp):
         'Function to be used for a jax.lax.scan, assuming no context'
-        print('hai!')
         current_out = self.output(state, self.params, None)
         next_state = self.step(state, self.params, inp)
         #print(state)

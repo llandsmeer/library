@@ -57,7 +57,7 @@ class MusclePair(Connector):
         params = models.MusclePairParams.makepair(**k) if params is None else params
         if input is None and context is None:
             input = f'(output.{act_e}, output.{act_f}, output.{joint})'
-            context  = f'(state.{act_e}.muscle_act, state.{act_f}.muscle_act, state.{joint}.angle)',
+            context  = f'(state.{act_e}.muscle_act, state.{act_f}.muscle_act, state.{joint}.angle)'
         else:
             assert act_e is None
             assert act_f is None
