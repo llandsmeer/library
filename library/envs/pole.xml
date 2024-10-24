@@ -30,12 +30,12 @@
     <geom name="rail" pos="0 0 0" quat="0.707 0 0.707 0" size="0.001 0.02" type="capsule" rgba="1 1 1 1"/>
     <body name="pole" pos="0 0 0">
       <!-- <joint axis="0 1 0" name="hinge" pos="0 0 0" range="-90 90" type="hinge" limited="true" damping="0.001" armature="0.0001" /> -->
-      <joint axis="0 1 0" name="hinge" pos="0 0 0" range="-90 90" type="hinge" limited="true" damping="0.00005" armature="0.000005" />
+      <joint axis="0 1 0" name="hinge" pos="0 0 0" range="-89 89" type="hinge" limited="true" damping="0.00005" armature="0.000005" />
 
       <geom fromto="0 0 0 0.0 0 0.01" name="cpole" size="0.0039 0.003" type="capsule" mass="0.01"/> 
     </body>
   </worldbody>
-  
+
 <!-- damping="0.000001" armature="0.00000005" -->
   <actuator>
     <motor ctrllimited="true" ctrlrange="-1 1" gear="1" joint="hinge" name="hinge"/>

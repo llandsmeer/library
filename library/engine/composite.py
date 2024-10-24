@@ -1,5 +1,6 @@
 import typing
 import collections
+import jax.nn
 import jax.numpy as jnp
 from .box import ABCBox, Box
 
@@ -20,10 +21,12 @@ class Connector(typing.Generic[OuterInputT, OuterOutputT, InputT, ContextT, Oute
     def __init__(self, inner=None, *, input, context=None, initial=None, params=None):
         def mkinputf(s: str) -> typing.Callable[[OuterInputT, OuterInputT], InputT]:
             env = dict(vars(jnp))
+            env.update(dict(vars(jax.nn)))
             exec(f'f = lambda input, output: {s}', env)
             return env['f']
         def mkcontextf(s: str) -> typing.Callable[[OuterInputT, OuterStateT], ContextT]:
             env = dict(vars(jnp))
+            env.update(dict(vars(jax.nn)))
             exec(f'f = lambda input, state: {s}', env)
             return env['f']
         self.input = mkinputf(input) if isinstance(input, str) else input

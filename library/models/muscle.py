@@ -35,8 +35,12 @@ class MuscleState(typing.NamedTuple):
             muscle_l_previous = 0.01, #first cycle is 1 the initial length
         )
     def step(self, params: MuscleParams, act: float, joint_angle: float):
+        eps=0.0
+        joint_angle = jnp.clip(joint_angle, 0+eps, jnp.pi-eps)
         return muscle_step(params, self, act, joint_angle)[0]
     def output(self, params: MuscleParams, act: float, joint_angle: float):
+        eps=0.0
+        joint_angle = jnp.clip(joint_angle, 0+eps, jnp.pi-eps)
         return muscle_step(params, self, act, joint_angle)[1]
 
 
@@ -60,8 +64,6 @@ def muscle_step(params: MuscleParams, state: MuscleState, act: float, joint_angl
 
 
 def calculate_muscle_length(joint_angle, con_p1, con_p2):
-    eps=0.1
-    joint_angle = jnp.clip(joint_angle, 0+eps, jnp.pi-eps)
     muscle_l = jnp.sqrt(con_p1**2 + con_p2**2 -2*con_p1*con_p2*jnp.cos(joint_angle))
     return muscle_l
 
