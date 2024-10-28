@@ -18,6 +18,9 @@ class MJXParams(typing.NamedTuple):
         qd = jnp.zeros((self.sys.qd_size(),))
         initial = pipeline.init(self.sys, q, qd)
         return MJXState(initial)
+    @property
+    def dt(self):
+        return self.sys.opt.timestep.item()
 
 class Angle(typing.NamedTuple):
     angle: float | jax.Array

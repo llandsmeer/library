@@ -19,6 +19,9 @@ class MusclePairParams(typing.NamedTuple):
             k['con_p2'] = con_p2_f
         flexor = muscle.MuscleParams.make(muscle_angle0=jnp.pi - muscle_angle0, *a, **k)
         return cls(extensor, flexor)
+    @property
+    def dt(self):
+        return self.extensor_params.dt
 
 
 

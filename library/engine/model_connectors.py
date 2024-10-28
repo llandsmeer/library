@@ -1,31 +1,39 @@
 from .. import models
 from .composite import Connector
 
+
 class LI(Connector):
-    def __init__(self, n: int, params: models.LIParams|None=None, *, input):
+    def __init__(self,
+                 n: int, params: models.LIParams|None=None, *,
+                 input, nsteps: int=1):
         initial = models.LIState.make(n)
         params = models.LIParams.make() if params is None else params
         super().__init__(
+                nsteps=nsteps,
                 input=input,
                 context=None,
                 initial=initial,
                 params=params)
 
 class LIF(Connector):
-    def __init__(self, n: int, params: models.LIFParams|None=None, *, input):
+    def __init__(self, n: int, params: models.LIFParams|None=None, *,
+                 input, nsteps: int=1):
         initial = models.LIFState.make(n)
         params = models.LIFParams.make() if params is None else params
         super().__init__(
+                nsteps=nsteps,
                 input=input,
                 context=None,
                 initial=initial,
                 params=params)
 
 class SensorLIF(Connector):
-    def __init__(self, n: int, params: models.SensorLIFParams|None=None, *, input):
+    def __init__(self, n: int, params: models.SensorLIFParams|None=None, *,
+                 input, nsteps: int=1):
         initial = models.SensorLIFState.make(n)
         params = models.SensorLIFParams.make() if params is None else params
         super().__init__(
+                nsteps=nsteps,
                 input=input,
                 initial=initial,
                 params=params)
@@ -34,10 +42,11 @@ class Muscle(Connector):
     def __init__(self,
                  params: models.MuscleParams|None=None,
                  *,
-                 input, context): # should make act & joint_angle?
+                 input, context, nsteps: int=1): # should make act & joint_angle?
         initial = models.MuscleState.make()
         params = models.MuscleParams.make() if params is None else params
         super().__init__(
+                nsteps=nsteps,
                 input=input,
                 context=context,
                 initial=initial,
@@ -51,6 +60,7 @@ class MusclePair(Connector):
                  act_e:str|None=None,
                  act_f:str|None=None,
                  joint:str|None=None,
+                 nsteps: int=1,
                  **k): # should make act & joint_angle?
         initial = models.MusclePairState.make()
         assert params is None != bool(k)
@@ -63,26 +73,31 @@ class MusclePair(Connector):
             assert act_f is None
             assert joint is None
         super().__init__(
+                nsteps=nsteps,
                 input=input,
                 context=context,
                 initial=initial,
                 params=params)
 
 class LinearMuscle(Connector):
-    def __init__(self, params: models.LinearMuscleParams|None=None, *, input, context):
+    def __init__(self, params: models.LinearMuscleParams|None=None, *,
+                 input, context, nsteps: int=1):
         initial = models.LinearMuscleState.make()
         params = models.LinearMuscleParams.make() if params is None else params
         super().__init__(
+                nsteps=nsteps,
                 input=input,
                 context=context,
                 initial=initial,
                 params=params)
 
 class MuscleActivation(Connector):
-    def __init__(self, params: models.MuscleActivationParams|None=None, *, input):
+    def __init__(self, params: models.MuscleActivationParams|None=None, *,
+                 input, nsteps: int=1):
         initial = models.MuscleActivationState.make()
         params = models.MuscleActivationParams.make() if params is None else params
         super().__init__(
+                nsteps=nsteps,
                 input=input,
                 context=None,
                 initial=initial,
@@ -93,7 +108,7 @@ class IsolatedJoint(Connector):
                  params: models.IsolatedJointParams|None=None,
                  inertia: float|None=None,
                  *,
-                 input):
+                 input, nsteps: int=1):
         initial = models.IsolatedJointState()
         assert not ((params is None) and (inertia is None))
         if params is None and inertia is None:
@@ -101,18 +116,19 @@ class IsolatedJoint(Connector):
         elif inertia is not None:
             params = models.IsolatedJointParams(inertia)
         super().__init__(
+                nsteps=nsteps,
                 input=input,
                 context=None,
                 initial=initial,
                 params=params)
 
-from .composite import Connector
-
 class MJXConnector(Connector):
-    def __init__(self, fn='pole.xml', *, input):
+    def __init__(self, fn='pole.xml', *,
+                 input, nsteps: int=1):
         params = models.MJXParams.make(fn)
         initial = params.init_state()
         super().__init__(
+                nsteps=nsteps,
                 input=input,
                 context=None,
                 initial=initial,

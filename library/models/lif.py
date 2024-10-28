@@ -12,16 +12,16 @@ class LIFParams(typing.NamedTuple):
     vth: float # threshold voltage for a spike
     alpha: float # synaptic alpha
     beta: float # membrane voltage beta
-    dt: float
+    dt_ms: float
     @classmethod
-    def make(cls, dt=0.25, iint=0., vth=1., tau_syn=5., tau_mem=20.):
-        alpha = float(jnp.exp(-dt / tau_syn))
-        beta = float(jnp.exp(-dt / tau_mem))
-        return cls(iint * dt, vth, alpha, beta, dt)
+    def make(cls, dt_ms=0.25, iint=0., vth=1., tau_syn=5., tau_mem=20.):
+        alpha = float(jnp.exp(-dt_ms / tau_syn))
+        beta = float(jnp.exp(-dt_ms / tau_mem))
+        return cls(iint * dt_ms, vth, alpha, beta, dt_ms)
 
-
-
-
+    @property
+    def dt(self):
+        return self.dt_ms * 1e-3
 
 
 
@@ -54,5 +54,5 @@ def lif_step_LIF(params: LIFParams, state: LIFState, syn_in: jax.Array):
     # perform the actual computation for a single lif cell timestep
     S = util.superspike(state.U - params.vth)
     I_next = params.alpha * state.I + syn_in
-    U_next = (1 - S) * (params.beta * state.U + state.I*params.dt)
+    U_next = (1 - S) * (params.beta * state.U + state.I*params.dt_ms)
     return LIFState(I_next, U_next), S

@@ -15,6 +15,7 @@ class ABCBox(abc.ABC, typing.Generic[StateT, ParamT, OutputT, ContextT, InputT])
     params: ParamT
     output: typing.Callable[[StateT, ParamT, ContextT], OutputT]
     step: typing.Callable[[StateT, ParamT, InputT], StateT]
+    dt: float
     def fscan(self, state, inp):
         'Function to be used for a jax.lax.scan, assuming no context'
         current_out = self.output(state, self.params, None)
@@ -30,4 +31,5 @@ class Box(typing.NamedTuple):
     params: object
     output: typing.Callable[[object, object, object], object]
     step: typing.Callable[[object, object, object], object]
+    dt: float
 

@@ -3,6 +3,7 @@ import collections
 import jax.nn
 import jax.numpy as jnp
 from .box import ABCBox, Box
+from .multistep import Multistep
 
 __all__ = ['Connector', 'Composite']
 
@@ -18,7 +19,10 @@ class Connector(typing.Generic[OuterInputT, OuterOutputT, InputT, ContextT, Oute
     inner: ABCBox
     input: typing.Callable[[OuterInputT, OuterInputT], InputT]
     context: typing.Callable[[OuterInputT, OuterStateT], ContextT]
-    def __init__(self, inner=None, *, input, context=None, initial=None, params=None):
+    def __init__(self, inner=None, *,
+                 input, context=None, initial=None, params=None,
+                 nsteps=1,
+                 ):
         def mkinputf(s: str) -> typing.Callable[[OuterInputT, OuterInputT], InputT]:
             env = dict(vars(jnp))
             env.update(dict(vars(jax.nn)))
@@ -31,25 +35,27 @@ class Connector(typing.Generic[OuterInputT, OuterOutputT, InputT, ContextT, Oute
             return env['f']
         self.input = mkinputf(input) if isinstance(input, str) else input
         self.context = (mkcontextf(context) if isinstance(context, str) else context) if context else lambda _i, _s:()
-        def f_output(state, params, ctx):
-            return state.output(params, *ctx) if isinstance(ctx, tuple) else state.output(params, ctx)
-        def f_step(state, params, inp):
-            return state.step(params, *inp) if isinstance(inp, tuple) else state.step(params, inp)
         assert inner is None != (initial is None and params is None)
         if inner is None:
-            self.inner = Box(initial, params, f_output, f_step) # type: ignore
-        else:
-            self.inner = inner
+            def f_output(state, params, ctx):
+                return state.output(params, *ctx) if isinstance(ctx, tuple) else state.output(params, ctx)
+            def f_step(state, params, inp):
+                state = state.step(params, *inp) if isinstance(inp, tuple) else state.step(params, inp)
+                return state
+            inner = Box(initial, params, f_output, f_step, params.dt) # type: ignore
+        if nsteps != 1:
+            inner = Multistep(inner, nsteps)
+        self.inner = inner
+
 
 class Composite(ABCBox):
     'Composite Box'
     def __init__(
-            self,
-            input: typing.List[str],
-            name: str = 'Model',
+            self, input: typing.List[str], name: str = 'Model',
             **kwargs: Connector
             ):
         members = kwargs.keys()
+        self.name = name
         self.State    = State   = collections.namedtuple(f'{name}State', members)
         self.Params   = Params  = collections.namedtuple(f'{name}Params', members)
         self.Input    = Input   = collections.namedtuple(f'{name}Input', input)
@@ -89,3 +95,18 @@ class Composite(ABCBox):
         self.params = params
         self.output = output
         self.step = step
+        if len(kwargs) == 0:
+            self.dt = 0
+        else:
+            dts = []
+            for member in kwargs.values():
+                dt = member.inner.dt
+                dts.append(dt)
+            print(dts)
+            dt = dts[0]
+            if not jnp.allclose(dt, jnp.array(dts)):
+                print('ERROR: NON-EQUAL DTs:')
+                for k, v in kwargs.items():
+                    print(k.ljust(20), v.inner.dt)
+                raise ValueError()
+            self.dt = dt

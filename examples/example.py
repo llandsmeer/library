@@ -1,3 +1,6 @@
+import sys
+sys.path.append('..')
+
 import jax
 import jax.numpy as jnp
 import library
@@ -22,7 +25,10 @@ jax.config.update("jax_enable_x64", True)
 model = library.engine.Composite(
         input       = ['ext_torque'],
         network = engine.SensorLIF(n=2,
-            input   = 'array([1*relu(-pi/2+output.env.joint(0)), 0*relu(-pi/2-output.env.joint(0))])'),
+            input   = 'array([1*relu(-pi/2+output.env.joint(0)), 0*relu(-pi/2-output.env.joint(0))])',
+            nsteps  = 10,
+
+                                   ),
         act_e = engine.MuscleActivation(
             input   = 'output.network[0]'),
         act_f = engine.MuscleActivation(
