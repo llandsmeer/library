@@ -103,6 +103,18 @@ class MuscleActivation(Connector):
                 initial=initial,
                 params=params)
 
+class SquareMuscleActivation(Connector):
+    def __init__(self, params: models.SquareMuscleActivationParams|None=None, *,
+                 input, nsteps: int=1):
+        initial = models.MuscleActivationState.make()
+        params = models.MuscleActivationParams.make() if params is None else params
+        super().__init__(
+                nsteps=nsteps,
+                input=input,
+                context=None,
+                initial=initial,
+                params=params)
+
 class IsolatedJoint(Connector):
     def __init__(self,
                  params: models.IsolatedJointParams|None=None,

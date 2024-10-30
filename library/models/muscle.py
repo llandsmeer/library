@@ -9,7 +9,7 @@ from . import util
 
 class MuscleParams(typing.NamedTuple):
     # params force lenght and force velocity relationships
-    dt: float
+    dt_ms: float
     pe_shape: float #SE_sh in code axel
     pe_xm: float
     muscle_maxf: float
@@ -21,9 +21,12 @@ class MuscleParams(typing.NamedTuple):
     ce_ratio: float #between [0,1], the CE SEE ratio/ tendon vs muscle -> fixed lenght will be calculated to increase the effect of lenght differences of the simulated muscle.
     muscle_l0: float | jax.Array
     @classmethod
-    def make(cls, dt=1.25, pe_shape=5., pe_xm=1.0, muscle_maxf=0.1, muscle_maxv=0.2, muscle_angle0=jnp.pi/2, con_p1=0.01, con_p2=0.001, ce_ratio=0.75):
+    def make(cls, dt_ms=1.25, pe_shape=5., pe_xm=1.0, muscle_maxf=0.1, muscle_maxv=0.2, muscle_angle0=jnp.pi/2, con_p1=0.01, con_p2=0.001, ce_ratio=0.75):
         muscle_l0 = jnp.sqrt(con_p1**2 + con_p2**2 -2*con_p1*con_p2*jnp.cos(muscle_angle0))
-        return cls(dt, pe_shape, pe_xm, muscle_maxf, muscle_maxv, muscle_angle0, con_p1, con_p2, ce_ratio, muscle_l0)
+        return cls(dt_ms, pe_shape, pe_xm, muscle_maxf, muscle_maxv, muscle_angle0, con_p1, con_p2, ce_ratio, muscle_l0)
+    @property
+    def dt(self):
+        return self.dt_ms * 1e-3
 
 
 
@@ -53,7 +56,7 @@ class MuscleState(typing.NamedTuple):
 
 def muscle_step(params: MuscleParams, state: MuscleState, act: float, joint_angle: float):
     muscle_l = calculate_muscle_length(joint_angle, params.con_p1, params.con_p2)
-    muscle_v = calculate_muscle_velocity(state.muscle_l_previous, muscle_l, params.dt, params.muscle_maxv)
+    muscle_v = calculate_muscle_velocity(state.muscle_l_previous, muscle_l, params.dt_ms, params.muscle_maxv)
     muscle_force, Fce, Fpe  = calculate_muscle_force(muscle_v, muscle_l, act, params.muscle_l0, params.pe_shape, params.pe_xm, params.ce_ratio, params.muscle_maxf, params.muscle_maxv)
     del Fce
     del Fpe
@@ -68,8 +71,8 @@ def calculate_muscle_length(joint_angle, con_p1, con_p2):
     return muscle_l
 
 
-def calculate_muscle_velocity(previous_muscle_l, muscle_l, dt, muscle_maxv):
-    muscle_v = - 1 * ((muscle_l - previous_muscle_l) / dt)   # updated 18-5
+def calculate_muscle_velocity(previous_muscle_l, muscle_l, dt_ms, muscle_maxv):
+    muscle_v = - 1 * ((muscle_l - previous_muscle_l) / dt_ms)   # updated 18-5
     muscle_v = util.passthrough_clip(muscle_v, -muscle_maxv, muscle_maxv) # updated 18-5
     return muscle_v
 

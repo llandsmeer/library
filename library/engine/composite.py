@@ -35,7 +35,7 @@ class Connector(typing.Generic[OuterInputT, OuterOutputT, InputT, ContextT, Oute
             return env['f']
         self.input = mkinputf(input) if isinstance(input, str) else input
         self.context = (mkcontextf(context) if isinstance(context, str) else context) if context else lambda _i, _s:()
-        assert inner is None != (initial is None and params is None)
+        assert (inner is None) != (initial is None and params is None)
         if inner is None:
             def f_output(state, params, ctx):
                 return state.output(params, *ctx) if isinstance(ctx, tuple) else state.output(params, ctx)
