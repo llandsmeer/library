@@ -26,15 +26,16 @@ model = library.engine.Composite(
         input       = ['ext_torque'],
         inner = engine.Connector(inner,
                           input =  lambda _, output:
-                          inner.Input(left =1*relu(-pi/2+output.env.joint(0)),
-                                      right=0*relu(-pi/2-output.env.joint(0))),
+                          inner.Input(left =1+.1*relu(-pi/2+output.env.joint(0)),
+                                      right=1*relu(-pi/2-output.env.joint(0))),
                           nsteps=5),
         env = engine.MJXConnector(fn='pole.xml',
             input   = 'array([1*output.muscles + input.ext_torque])'),
         muscles = engine.MusclePair(
             act_e   = 'inner.act_e',
             act_f   = 'inner.act_f',
-            joint   = 'env.joint(0)')
+            joint   = 'env.joint(0)'),
+        reset = 'abs(state.env.joint(0).angle - pi/2) > 100000'
         )
 
 relu = jax.nn.relu

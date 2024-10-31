@@ -37,4 +37,8 @@ class SquareMuscleActivationState(typing.NamedTuple):
         return SquareMuscleActivationState(counter_next)
     def output(self, _: SquareMuscleActivationParams):
         ctrl = util.superspike(self.counter)
-        return 0.001 * ctrl.reshape(1,)
+        return 0.001 * ctrl
+    @property
+    def muscle_act(self):
+        ctrl = util.superspike(self.counter)
+        return 0.001 * ctrl

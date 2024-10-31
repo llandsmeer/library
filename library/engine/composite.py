@@ -56,7 +56,8 @@ class Composite(ABCBox):
     'Composite Box'
     def __init__(
             self, input: typing.List[str] | None = None, name: str = 'Model',
-            **kwargs: Connector
+            reset: None | str | typing.Callable = None,
+            **kwargs: Connector,
             ):
         members = kwargs.keys()
         self.name = name
@@ -73,6 +74,10 @@ class Composite(ABCBox):
                 o = member.inner.output(s, p, c)
                 output.append(o)
             return Output(*output)
+        if reset is None:
+            reset = lambda _, __: False
+        else:
+            reset = Reset.mkcondf(reset)
         def f_step(state: State, params: Params, inp: Input) -> State:
             outer = f_output(state, params, inp)
             state_next = []
@@ -82,7 +87,7 @@ class Composite(ABCBox):
                 i = member.input(inp, outer)
                 n = member.inner.step(s, p, i)
                 state_next.append(n)
-            return State(*state_next)
+            return jax.lax.cond(reset(inp, state), lambda: State(*state_next), lambda: initial_state)
         initial = []
         for member in kwargs.values():
             i = member.inner.initial
