@@ -4,6 +4,7 @@ import jax.nn
 import jax.numpy as jnp
 from .box import ABCBox, Box
 from .multistep import Multistep
+from .reset import Reset
 
 __all__ = ['Connector', 'Composite']
 
@@ -14,7 +15,7 @@ OuterInputT = typing.TypeVar('OuterInputT')
 OuterOutputT = typing.TypeVar('OuterOutputT')
 OuterStateT = typing.TypeVar('OuterStateT')
 
-class Connector(typing.Generic[OuterInputT, OuterOutputT, InputT, ContextT, OuterStateT]):
+class Connector(typing.Generic[OuterInputT, OuterOutputT, InputT, ContextT, OuterStateT, StateT]):
     'Goes with the Composite class'
     inner: ABCBox
     input: typing.Callable[[OuterInputT, OuterInputT], InputT]
@@ -22,6 +23,7 @@ class Connector(typing.Generic[OuterInputT, OuterOutputT, InputT, ContextT, Oute
     def __init__(self, inner=None, *,
                  input, context=None, initial=None, params=None,
                  nsteps=1,
+                 reset: str | typing.Callable[[InputT, StateT], bool] | None = None
                  ):
         def mkinputf(s: str) -> typing.Callable[[OuterInputT, OuterInputT], InputT]:
             env = dict(vars(jnp))
@@ -45,20 +47,22 @@ class Connector(typing.Generic[OuterInputT, OuterOutputT, InputT, ContextT, Oute
             inner = Box(initial, params, f_output, f_step, params.dt) # type: ignore
         if nsteps != 1:
             inner = Multistep(inner, nsteps)
+        if reset is not None:
+            inner = Reset(inner, reset)
         self.inner = inner
 
 
 class Composite(ABCBox):
     'Composite Box'
     def __init__(
-            self, input: typing.List[str], name: str = 'Model',
+            self, input: typing.List[str] | None = None, name: str = 'Model',
             **kwargs: Connector
             ):
         members = kwargs.keys()
         self.name = name
         self.State    = State   = collections.namedtuple(f'{name}State', members)
         self.Params   = Params  = collections.namedtuple(f'{name}Params', members)
-        self.Input    = Input   = collections.namedtuple(f'{name}Input', input)
+        self.Input    = Input   = collections.namedtuple(f'{name}Input', input if input is not None else '')
         self.Output   = Output  = collections.namedtuple(f'{name}Output', members)
         def f_output(state: State, params: Params, inp: Input) -> Output:
             output = []

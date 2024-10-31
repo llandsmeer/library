@@ -33,10 +33,11 @@ class SensorLIFState(typing.NamedTuple):
     def make(cls, n):
         return cls(
             U = jnp.zeros(n)+1e-10)
-    def step(state, params: SensorLIFParams, syn_in: jax.Array):
-        return lif_step_SensorLIF(params, state, syn_in)[0]
-    def output(state, params: SensorLIFParams):
-        return util.superspike(state.U - params.vth)
+    def step(self, params: SensorLIFParams, syn_in: jax.Array):
+        jax.debug.print('{}', syn_in)
+        return lif_step_SensorLIF(params, self, syn_in)[0]
+    def output(self, params: SensorLIFParams):
+        return util.superspike(self.U - params.vth)
 
 
 

@@ -8,20 +8,8 @@ import library
 from library import engine
 
 #jax.config.update('jax_debug_nans', True)
+#jax.config.update('jax_disable_jit', True)
 jax.config.update("jax_enable_x64", True)
-#jax.config.update('jax_debug_nans', True)
-
-# model = library.engine.Composite(
-#         input = ['x'],
-#         a = library.engine.LI(
-#             n=10,
-#             input = lambda input, output: output.b + input.x # type: ignore
-#             ),
-#         b = library.engine.LIF(
-#             n=10,
-#             input  = 'output.a' # type: ignore
-#             )
-#         )
 
 inner = library.engine.Composite(
         input       = ['left', 'right'],

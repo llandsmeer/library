@@ -15,9 +15,12 @@ In a real-world use-case, we also want
  - Massive parallel execution on modern accelerator hardware
  - Ability to apply higher-order optimisation algorithms - i.e. gradient descent
 
- # Authors
+# Authors
 
   - Joy Brand
   - Lennart P. L. Landsmeer
 
 
+# TODO
+
+ - [ ] Catch NaN on joint overrotation, which also causes overspiking in LIF cells
