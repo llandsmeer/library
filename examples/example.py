@@ -35,7 +35,8 @@ model = library.engine.Composite(
             act_e   = 'inner.act_e',
             act_f   = 'inner.act_f',
             joint   = 'env.joint(0)'),
-        reset = 'abs(state.env.joint(0).angle - pi/2) > 100000'
+        reset = 'abs(state.env.joint(0).angle - pi/2) > 100000',
+        state = engine.StateRecorder()
         )
 
 relu = jax.nn.relu
@@ -44,18 +45,11 @@ inp = model.Input(0.001*(t<1))
 _, trace = jax.lax.scan(model.fscan, model.initial, inp)
 
 print(trace.env)
-plt.plot(t, trace.env.joint(0))
-plt.scatter(t[trace.inner.network[:,0]==1], 0*t[trace.inner.network[:,0]==1] + 1)
-plt.scatter(t[trace.inner.network[:,1]==1], 0*t[trace.inner.network[:,1]==1] + 2)
 
+import matplotlib.pyplot as plt
+#plt.plot(t, trace.env.joint(0))
+plt.plot(t, trace.state.inner.network.U[:,0])
+plt.plot(t, trace.state.inner.network.U[:,1])
+# plt.scatter(t[trace.inner.network[:,0]==1], 0*t[trace.inner.network[:,0]==1] + 1)
+# plt.scatter(t[trace.inner.network[:,1]==1], 0*t[trace.inner.network[:,1]==1] + 2)
 plt.show()
-
-        #joint1 = library.engine.IsolatedJoint(
-        #    input       = 'output.muscles1',
-        #    inertia     = 1e-4
-        #    ),
-        #muscles1 = library.engine.MusclePair(
-        #    act_e = 'act_e',
-        #    act_f = 'act_f',
-        #    joint = 'joint1'
-        #    ),
