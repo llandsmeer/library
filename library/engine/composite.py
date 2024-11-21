@@ -87,7 +87,10 @@ class Composite(ABCBox):
                 i = member.input(inp, outer)
                 n = member.inner.step(s, p, i)
                 state_next.append(n)
-            return jax.lax.cond(reset(inp, state), lambda: State(*state_next), lambda: initial_state)
+            should_reset = reset(inp, state)
+            return jax.lax.cond(should_reset,
+                    lambda: initial_state,
+                    lambda: State(*state_next))
         initial = []
         for member in kwargs.values():
             i = member.inner.initial
